@@ -61,9 +61,17 @@
    | Static App Config App Location | `nuxt-app`（デフォルト） |
    | Static App Config App Output Location | `.output/public`（デフォルト） |
    | Static App Config App Build Command | `npm run generate`（デフォルト） |
-3. 上記でデプロイ完了後は、フロントエンドアプリケーションしかデプロイされていません。上記の ARMテンプレートの構成では、Azure Static Web App にリンクした Azure Functions も作成されているので、それに対してこのリポジトリの `api` ディレクトリの Azure Functions プロジェクトを `func` コマンドや VS Code の拡張機能などを用いてデプロイしてください。（※）
+3. 上記でデプロイ完了後は、フロントエンドアプリケーションしかデプロイされていません。上記の ARMテンプレートの構成では、Azure Static Web App にリンクした Azure Functions も作成されているので、それに対してこのリポジトリの `api` ディレクトリの Azure Functions プロジェクトを `az` コマンドや VS Code の拡張機能などを用いてデプロイしてください。（※）
 
-※ このリポジトリの Dev Container の環境には、`func` や `swa` コマンドがインストールされているので、必要に応じて GitHub Codespaces や VS Code からご利用ください。
+※ このリポジトリの Dev Container の環境には、`func` や `swa`、`az` コマンドがインストールされているので、必要に応じて GitHub Codespaces や VS Code からご利用ください。`az` コマンドを利用する場合は、下記をご参考ください。
+
+```bash
+cd api
+npm install --production
+zip -r function .
+az login
+az functionapp deploy --resource-group {Resource group name} --name {Fnction app name}  --src-path function.zip
+```
 
 ## 参考
 
@@ -79,7 +87,7 @@ npx nuxi init nuxt-app
 mkdir api
 cd api
 func init --worker-runtime node --langurage javascript
-func new --template "HTTP trigger" --authlevel function --name HttpTrigger1
+func new --template "HTTP trigger" --authlevel anonymous --name HttpTrigger1
 
 # Put configuration file
 echo "{\"platform\": {\"apiRuntime\": \"node:16\"}}" | jq > nuxt-app/staticwebapp.config.json
