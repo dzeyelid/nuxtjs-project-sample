@@ -14,29 +14,28 @@
    | Static App Config App Output Location | `.output/public`（デフォルト） |
    | Static App Config App Build Command | `npm run generate`（デフォルト） |
 3. 上記でデプロイ完了後は、静的サイトしかデプロイされていないので、API もデプロイするには、リポジトリに作成されたワークフローファイル（`.github/workflows/azure-static-web-apps-***.yml`）を更新します。下記のように `Azure/static-web-apps-deploy` アクションの `api_location` に `api` ディレクトリを指定して、ワークフローファイルをコミットすると、ワークフローが実行され設定が反映されます。
-
-```diff
- jobs:
-   build_and_deploy_job:
-     # -- 略 --
-     steps:
-       # -- 略 --
-       - name: Build And Deploy
-         id: builddeploy
-         uses: Azure/static-web-apps-deploy@v1
-         with:
-           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_WONDERFUL_ROCK_06D394300 }}
-           repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
-           action: "upload"
-           ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
-           # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
-           app_location: "nuxt-app" # App source code path
--          api_location: "" # Api source code path - optional
-+          api_location: "api" # Api source code path - optional
-           output_location: ".output/public" # Built app content directory - optional
-           app_build_command: "npm run generate" # Custom build command for app content - optional
-           ###### End of Repository/Build Configurations ######  
-```
+   ```diff
+    jobs:
+      build_and_deploy_job:
+        # -- 略 --
+        steps:
+          # -- 略 --
+          - name: Build And Deploy
+            id: builddeploy
+            uses: Azure/static-web-apps-deploy@v1
+            with:
+              azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_WONDERFUL_ROCK_06D394300 }}
+              repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
+              action: "upload"
+              ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
+              # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
+              app_location: "nuxt-app" # App source code path
+   -          api_location: "" # Api source code path - optional
+   +          api_location: "api" # Api source code path - optional
+              output_location: ".output/public" # Built app content directory - optional
+              app_build_command: "npm run generate" # Custom build command for app content - optional
+              ###### End of Repository/Build Configurations ######
+   ```
 
 ## 参考
 
@@ -53,4 +52,7 @@ mkdir api
 cd api
 func init --worker-runtime node --langurage javascript
 func new --template "HTTP trigger" --authlevel function --name HttpTrigger1
+
+# Put configuration file
+echo "{\"platform\": {\"apiRuntime\": \"node:16\"}}" | jq > nuxt-app/staticwebapp.config.json
 ```
