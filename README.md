@@ -1,41 +1,69 @@
 # nuxtjs3-project-template
 
-デモ用の [NuxtJS](https://nuxt.com/) のプロジェクトを格納したリポジトリです。
+このリポジトリは、Azure Static Web Apps のデモを想定し、フロントエンドアプリケーションと API で構成されています。
 
-## `quickstart-templates/Azure-for-startups` における利用
+フロントエンドアプリケーションとして [NuxtJS](https://nuxt.com/) のプロジェクトを、API として Azure Functions のプロジェクトを含んでいます。
+
+```bash
+.
+├── README.md
+├── .devcontainer         # Dev Container の設定
+├── api                   # Azure Functions のプロジェクト
+├── nuxt-app              # Nuxt 3 で構成されたフロントエンドアプリケーション
+└── swa-cli.config.json   # SWA CLI 用の設定ファイル
+```
+
+## 利用例
+
+### Azure ポータルから Azure Static Web App をデプロイする
+
+1. このテンプレートリポジトリを元に新規のリポジトリを作成してください。（「Use this template」ボタンから作成できます。）
+2. Azure ポータルで Azure Static Web App のリソースを作成します。<br/>
+   「Deployment details」では、上記で作成したリポジトリを指定してください。</br>
+   「Build Details」では、「Build Presets」で `Nuxt 3` を選択し、「App location」に `nuxt-app` を指定してください。
+   | 設定項目 | 設定値 |
+   |----|----|
+   | Build Presets | Nuxt 3 |
+   | App location | `nuxt-app` |
+   | Api location | `api` |
+   | Output location | `.output/public`（デフォルト） |
+3. 上記の設定では、ワークフロー（`.github/workflows/azure-static-web-apps-***.yml`）の `Azure/static-web-apps-deploy` アクションの `app_build_command` が設定されないので、下記のように追記してコミットします。コミットするとワークフローが実行されて、変更が反映されます。
+   ```diff
+   jobs:
+     build_and_deploy_job:
+       # ---- 省略 ----
+       steps:
+         # ---- 省略 ----
+         - name: Build And Deploy
+           id: builddeploy
+           uses: Azure/static-web-apps-deploy@v1
+           with:
+             azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_PROUD_SAND_0176F6900 }}
+             repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
+             action: "upload"
+             ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
+             # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
+             app_location: "nuxt-app" # App source code path
+             api_location: "api" # Api source code path - optional
+             output_location: ".output/public" # Built app content directory - optional
+   +         app_build_command: "npm run generate"
+             ###### End of Repository/Build Configurations ######
+   ```
+
+### `quickstart-templates/Azure-for-startups` における利用
 
 [quickstart-templates/Azure-for-startups](https://github.com/quickstart-templates/Azure-for-startups) の「[1-1 Nuxt.js で SPA をサーバーレス環境にデプロイしたい](https://github.com/quickstart-templates/Azure-for-startups/tree/main/1_web-application/1-1_spa-on-serverless)」で利用する場合の補足です。
 
-1. このテンプレートリポジトリを元に新規のリポジトリを作成してください。
+1. このテンプレートリポジトリを元に新規のリポジトリを作成してください。（「Use this template」ボタンから作成できます。）
 2. 「[1-1 Nuxt.js で SPA をサーバーレス環境にデプロイしたい](https://github.com/quickstart-templates/Azure-for-startups/tree/main/1_web-application/1-1_spa-on-serverless)」の「Deploy to Azure」ボタンでデプロイのパラメータ入力画面を開きます。パラメータのうち、下記項目についてはこのリポジトリに合うよう設定をご確認ください。適宜入力したらデプロイします。
-   | 設定項目 | 説明 |
+   | 設定項目 | 設定値|
    |----|----|
    | Static App Config App Location | `nuxt-app`（デフォルト） |
    | Static App Config App Output Location | `.output/public`（デフォルト） |
    | Static App Config App Build Command | `npm run generate`（デフォルト） |
-3. 上記でデプロイ完了後は、静的サイトしかデプロイされていないので、API もデプロイするには、リポジトリに作成されたワークフローファイル（`.github/workflows/azure-static-web-apps-***.yml`）を更新します。下記のように `Azure/static-web-apps-deploy` アクションの `api_location` に `api` ディレクトリを指定して、ワークフローファイルをコミットすると、ワークフローが実行され設定が反映されます。
-   ```diff
-    jobs:
-      build_and_deploy_job:
-        # -- 略 --
-        steps:
-          # -- 略 --
-          - name: Build And Deploy
-            id: builddeploy
-            uses: Azure/static-web-apps-deploy@v1
-            with:
-              azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_WONDERFUL_ROCK_06D394300 }}
-              repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
-              action: "upload"
-              ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
-              # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
-              app_location: "nuxt-app" # App source code path
-   -          api_location: "" # Api source code path - optional
-   +          api_location: "api" # Api source code path - optional
-              output_location: ".output/public" # Built app content directory - optional
-              app_build_command: "npm run generate" # Custom build command for app content - optional
-              ###### End of Repository/Build Configurations ######
-   ```
+3. 上記でデプロイ完了後は、フロントエンドアプリケーションしかデプロイされていません。上記の ARMテンプレートの構成では、Azure Static Web App にリンクした Azure Functions も作成されているので、それに対してこのリポジトリの `api` ディレクトリの Azure Functions プロジェクトを `func` コマンドや VS Code の拡張機能などを用いてデプロイしてください。（※）
+
+※ このリポジトリの Dev Container の環境には、`func` や `swa` コマンドがインストールされているので、必要に応じて GitHub Codespaces や VS Code からご利用ください。
 
 ## 参考
 
